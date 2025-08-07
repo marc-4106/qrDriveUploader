@@ -18,9 +18,10 @@ app.get('/', (req, res) => {
 
 // Google Drive API setup
 const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(__dirname, 'service-account.json'),
+  credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT),
   scopes: ['https://www.googleapis.com/auth/drive.file'],
 });
+
 const drive = google.drive({ version: 'v3', auth });
 
 const FOLDER_ID = '17MvhVrT8QcU7YcjQH9jT3GlL077So1n3';
