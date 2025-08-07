@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QR Drive Uploader</title>
+</head>
+<body>
+  <h2>Capture and Upload to Google Drive</h2>
+  <video id="camera" autoplay playsinline muted width="300"></video>
+  <br/>
+  <button id="captureButton">Capture and Upload</button>
+
+  <script>
+    const video = document.getElementById('camera');
+    const captureButton = document.getElementById('captureButton');
+    let streamStarted = false;
+
+    const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
+
+    if (!isSecure) {
+      alert('Camera access requires HTTPS or localhost.');
+    } else {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+          video.srcObject = stream;
+          streamStarted = true;
+        })
+        .catch((err) => {
+          alert('Camera access denied or unavailable.');
+          console.error(err);
+        });
+    }
+
+    captureButton.addEventListener('click', () => {
+      if (!streamStarted || video.videoWidth === 0) {
+        alert("Camera not ready. Try again.");
+        return;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) return alert("Capture failed.");
+        const formData = new FormData();
+        formData.append('image', blob, 'photo.jpg');
+
+        try {
+          const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+          });
+          const result = await response.json();
+          alert(result.message);
+        } catch (error) {
+          alert('Upload failed');
+          console.error(error);
+        }
+      }, 'image/jpeg');
+    });
+  </script>
+</body>
+</html>
