@@ -4,12 +4,17 @@ const fs = require('fs');
 const { google } = require('googleapis');
 const path = require('path');
 const cors = require('cors');
-require('dotenv').config(); // Optional, for secrets in .env
+require('dotenv').config();
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
+
 app.use(cors());
-app.use(express.static('public')); // Serves index.html
+
+// ✅ Serve index.html from root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // Google Drive API setup
 const auth = new google.auth.GoogleAuth({
@@ -18,7 +23,6 @@ const auth = new google.auth.GoogleAuth({
 });
 const drive = google.drive({ version: 'v3', auth });
 
-// Replace with your actual folder ID from Google Drive
 const FOLDER_ID = '17MvhVrT8QcU7YcjQH9jT3GlL077So1n3';
 
 app.post('/upload', upload.single('image'), async (req, res) => {
@@ -41,7 +45,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
       fields: 'id',
     });
 
-    fs.unlinkSync(req.file.path); // Cleanup temp file
+    fs.unlinkSync(req.file.path);
     res.json({ message: 'Uploaded to Drive with ID: ' + response.data.id });
   } catch (err) {
     console.error(err);
