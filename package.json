@@ -19,6 +19,7 @@
   "homepage": "https://github.com/marc-4106/qrDriveUploader#readme",
   "description": "",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "googleapis": "^155.0.0",
     "multer": "^2.0.2"
